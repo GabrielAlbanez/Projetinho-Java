@@ -41,10 +41,12 @@ public class UsuarioDAO {
             while (rs.next()) {
                 // Cria um objeto Usuario a partir dos dados da linha do ResultSet
                 Usuario usuario = new Usuario(
+                        rs.getString("role"),
                         rs.getInt("id"),
                         rs.getString("nome"),
                         rs.getString("senha"),
                         rs.getString("email"));
+
                 usuarios.add(usuario); // Adiciona à lista
             }
         } catch (SQLException e) {
@@ -59,7 +61,7 @@ public class UsuarioDAO {
         String sql = "DELETE FROM usuarios WHERE id = ?";
 
         try (Connection conn = Database.getConnection();
-            PreparedStatement statement = conn.prepareStatement(sql)) {
+                PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, id);
             int rowsAffected = statement.executeUpdate();
             if (rowsAffected > 0) {

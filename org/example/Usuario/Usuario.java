@@ -3,22 +3,30 @@ package org.example.Usuario;
 import java.util.ArrayList;
 
 public class Usuario {
-    @SuppressWarnings("unused")
     private int id;
     private String nome;
     private String password;
     private String email;
+    private String role;
 
     // Construtor
-    public Usuario(int id,String nome, String password, String email) {
+    public Usuario(int id, String nome, String password, String email) {
         this.id = id;
+        this.nome = nome;
+        this.password = password;
+        this.email = email;
+
+    }
+
+    public Usuario(String nome, String password, String email) {
         this.nome = nome;
         this.password = password;
         this.email = email;
     }
 
-
-    public Usuario(String nome, String password, String email) {
+    public Usuario(String role, int id, String nome, String password, String email) {
+        this.id = id;
+        this.role = role;
         this.nome = nome;
         this.password = password;
         this.email = email;
@@ -39,6 +47,10 @@ public class Usuario {
 
     public int getId() {
         return id;
+    }
+
+    public String getRole() {
+        return role;
     }
 
     public static String[] cadastroDeUsuarios(ArrayList<Usuario> usuarios) {
