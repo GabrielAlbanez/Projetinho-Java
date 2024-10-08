@@ -54,4 +54,6 @@ public class UsuarioDAO {
 
         return usuarios; // Retorna a lista de usuários
     }
+
+    // public void deleteUserFrom
 }

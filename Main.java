@@ -23,101 +23,121 @@ public class Main {
         }
 
         Scanner scanner = new Scanner(System.in);
+        ArrayList<Usuario> usuarios = new ArrayList<>();
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
 
         System.out.println("1 - listar usuarios |  2 - cadastrar usuarios | 3 - remover usuarios");
+        String numeroEscolhido = scanner.nextLine();
 
-        ArrayList<Usuario> usuarios = new ArrayList<>();
-        UsuarioDAO usuarioDAO = new UsuarioDAO(); // Cria a instância do DAO
+        switch (numeroEscolhido) {
+            case "1":
 
-        // Pergunta quantos usuários o usuário deseja cadastrar
-        System.out.print("Quantos usuários você deseja cadastrar? ");
-        int numeroDeUsuarios = scanner.nextInt();
-        scanner.nextLine(); // Limpa o buffer
+                System.out.println("Usuarios Cadastrados No Banco");
 
-        for (int i = 0; i < numeroDeUsuarios; i++) {
-            JFrame frame = new JFrame("Cadastro de Usuário");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(300, 200);
-            frame.setLayout(new GridLayout(4, 2));
+                List<Usuario> UserDataa = usuarioDAO.getAllUserDataBase();
 
-            // Criar campos de entrada
-            JLabel nomeLabel = new JLabel("Nome:");
-            JTextField nomeField = new JTextField();
-            JLabel emailLabel = new JLabel("E-mail:");
-            JTextField emailField = new JTextField();
-            JLabel senhaLabel = new JLabel("Senha:");
-            JPasswordField senhaField = new JPasswordField();
-            JButton cadastrarButton = new JButton("Cadastrar");
+                int index = 0;
 
-            // Adicionar ação ao botão
-            cadastrarButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String nome = nomeField.getText().trim();
-                    String email = emailField.getText().trim();
-                    String senha = new String(senhaField.getPassword()).trim();
+                for (Usuario usuario : UserDataa) {
+                    System.out.println("usuario" + index);
+                    System.out.println("nome : " + usuario.getNome());
+                    System.out.println("email : " + usuario.getEmail());
+                    index++;
+                }
 
-                    // Validação dos campos
-                    if (nome.isEmpty() || email.isEmpty() || senha.isEmpty()) {
-                        JOptionPane.showMessageDialog(frame, "Todos os campos devem ser preenchidos!", "Erro",
-                                JOptionPane.ERROR_MESSAGE);
-                        return; // Sai se houver erro
-                    }
+                break;
 
-                    // Verificação de e-mail duplicado
+            case "2":
 
-                    List<Usuario> UserData = usuarioDAO.getAllUserDataBase();
+                System.out.print("Quantos usuários você deseja cadastrar? ");
+                int numeroDeUsuarios = scanner.nextInt();
+                scanner.nextLine(); // Limpa o buffer
 
-                    for (Usuario usuario : UserData) {
-                        if (usuario.getEmail().equalsIgnoreCase(email)) {
-                            JOptionPane.showMessageDialog(frame, "E-mail já cadastrado!", "Erro",
-                                    JOptionPane.ERROR_MESSAGE);
-                            return; // Sai se encontrar um e-mail existente
+                for (int i = 0; i < numeroDeUsuarios; i++) {
+                    JFrame frame = new JFrame("Cadastro de Usuário");
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame.setSize(300, 200);
+                    frame.setLayout(new GridLayout(4, 2));
+
+                    // Criar campos de entrada
+                    JLabel nomeLabel = new JLabel("Nome:");
+                    JTextField nomeField = new JTextField();
+                    JLabel emailLabel = new JLabel("E-mail:");
+                    JTextField emailField = new JTextField();
+                    JLabel senhaLabel = new JLabel("Senha:");
+                    JPasswordField senhaField = new JPasswordField();
+                    JButton cadastrarButton = new JButton("Cadastrar");
+
+                    // Adicionar ação ao botão
+                    cadastrarButton.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String nome = nomeField.getText().trim();
+                            String email = emailField.getText().trim();
+                            String senha = new String(senhaField.getPassword()).trim();
+
+                            // Validação dos campos
+                            if (nome.isEmpty() || email.isEmpty() || senha.isEmpty()) {
+                                JOptionPane.showMessageDialog(frame, "Todos os campos devem ser preenchidos!", "Erro",
+                                        JOptionPane.ERROR_MESSAGE);
+                                return; // Sai se houver erro
+                            }
+
+                            // Verificação de e-mail duplicado
+
+                            List<Usuario> UserData = usuarioDAO.getAllUserDataBase();
+
+                            for (Usuario usuario : UserData) {
+                                if (usuario.getEmail().equalsIgnoreCase(email)) {
+                                    JOptionPane.showMessageDialog(frame, "E-mail já cadastrado!", "Erro",
+                                            JOptionPane.ERROR_MESSAGE);
+                                    return; // Sai se encontrar um e-mail existente
+                                }
+                            }
+
+                            // Cadastro do novo usuário
+                            usuarios.add(new Usuario(nome, senha, email));
+                            JOptionPane.showMessageDialog(frame, "Usuário cadastrado com sucesso!");
+                            frame.dispose(); // Fecha a janela após o cadastro
+                        }
+                    });
+
+                    // Adicionar componentes ao frame
+                    frame.add(nomeLabel);
+                    frame.add(nomeField);
+                    frame.add(emailLabel);
+                    frame.add(emailField);
+                    frame.add(senhaLabel);
+                    frame.add(senhaField);
+                    frame.add(cadastrarButton);
+                    frame.setVisible(true);
+
+                    // Espera o usuário fechar a janela antes de continuar
+                    while (frame.isVisible()) {
+                        try {
+                            Thread.sleep(100); // Espera um pouco para evitar uso excessivo da CPU
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
                         }
                     }
-
-                    // Cadastro do novo usuário
-                    usuarios.add(new Usuario(nome, senha, email));
-                    JOptionPane.showMessageDialog(frame, "Usuário cadastrado com sucesso!");
-                    frame.dispose(); // Fecha a janela após o cadastro
                 }
-            });
 
-            // Adicionar componentes ao frame
-            frame.add(nomeLabel);
-            frame.add(nomeField);
-            frame.add(emailLabel);
-            frame.add(emailField);
-            frame.add(senhaLabel);
-            frame.add(senhaField);
-            frame.add(cadastrarButton);
-            frame.setVisible(true);
+                // Após o loop de cadastro, salvar os usuários no banco de dados
+                usuarioDAO.salvarUsuarios(usuarios);
 
-            // Espera o usuário fechar a janela antes de continuar
-            while (frame.isVisible()) {
-                try {
-                    Thread.sleep(100); // Espera um pouco para evitar uso excessivo da CPU
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }
+                break;
+
+            case "3":
+
+                break;
+
+            default:
+                break;
         }
 
-        // Após o loop de cadastro, salvar os usuários no banco de dados
-        usuarioDAO.salvarUsuarios(usuarios);
+        // Cria a instância do DAO
 
-        System.out.println("Usuarios Cadastrados No Banco");
-
-        List<Usuario> UserDataa = usuarioDAO.getAllUserDataBase();
-
-        int index = 0;
-
-        for (Usuario usuario : UserDataa) {
-            System.out.println(index);
-            System.out.println("nome : " +  usuario.getNome());
-            System.out.println("email : " +  usuario.getEmail());
-            index++;            
-        }
+        // Pergunta quantos usuários o usuário deseja cadastrar
 
         scanner.close();
 
