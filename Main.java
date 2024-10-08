@@ -1,72 +1,109 @@
-
 import java.util.Scanner;
-
 import org.example.Auth.Autenticacao;
+import org.example.Database.Database;
 import org.example.Usuario.Usuario;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        // Criar um scanner para capturar a entrada do usuário
-        Scanner scanner = new Scanner(System.in);
 
-        // Solicitar quantos usuários serão criados
+        Connection connection = Database.getConnection();
+        if (connection == null) {
+            System.out.println("Não foi possível conectar ao banco de dados.");
+            return; // Encerra o programa se não conseguir conectar
+        }
+
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<Usuario> usuarios = new ArrayList<>();
+
+        // Pergunta quantos usuários o usuário deseja cadastrar
         System.out.print("Quantos usuários você deseja cadastrar? ");
         int numeroDeUsuarios = scanner.nextInt();
-        scanner.nextLine(); // Consumir a quebra de linha
+        scanner.nextLine(); // Limpa o buffer
 
-        // Criar um array de usuários com base no número fornecido
-        Usuario[] usuarios = new Usuario[numeroDeUsuarios];
-
-        // Loop para capturar os dados de cada usuário
         for (int i = 0; i < numeroDeUsuarios; i++) {
-            System.out.println("Digite os dados do usuário " + (i + 1) + ":");
+            JFrame frame = new JFrame("Cadastro de Usuário");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(300, 200);
+            frame.setLayout(new GridLayout(4, 2));
 
-            System.out.print("Nome: ");
-            String nome = scanner.nextLine();
+            // Criar campos de entrada
+            JLabel nomeLabel = new JLabel("Nome:");
+            JTextField nomeField = new JTextField();
+            JLabel emailLabel = new JLabel("E-mail:");
+            JTextField emailField = new JTextField();
+            JLabel senhaLabel = new JLabel("Senha:");
+            JPasswordField senhaField = new JPasswordField();
+            JButton cadastrarButton = new JButton("Cadastrar");
 
-            System.out.print("Senha: ");
-            String senha = scanner.nextLine();
+            // Adicionar ação ao botão
+            cadastrarButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String nome = nomeField.getText().trim();
+                    String email = emailField.getText().trim();
+                    String senha = new String(senhaField.getPassword()).trim();
 
-            System.out.print("Email: ");
-            String email = scanner.nextLine();
+                    // Validação dos campos
+                    if (nome.isEmpty() || email.isEmpty() || senha.isEmpty()) {
+                        JOptionPane.showMessageDialog(frame, "Todos os campos devem ser preenchidos!", "Erro",
+                                JOptionPane.ERROR_MESSAGE);
+                        return; // Sai se houver erro
+                    }
 
-            // Criar um novo objeto Usuario e armazená-lo no array
-            usuarios[i] = new Usuario(nome, senha, email);
-        }
+                    // Verificação de e-mail duplicado
+                    for (Usuario usuario : usuarios) {
+                        if (usuario.getEmail().equalsIgnoreCase(email)) {
+                            JOptionPane.showMessageDialog(frame, "E-mail já cadastrado!", "Erro",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return; // Sai se encontrar um e-mail existente
+                        }
+                    }
 
-        System.out.print("1 - listar usuarios  / 2 - ir para autenticação ");
-        String NumeroPego = scanner.nextLine();
+                    // Cadastro do novo usuário
+                    usuarios.add(new Usuario(nome, senha, email));
+                    JOptionPane.showMessageDialog(frame, "Usuário cadastrado com sucesso!");
 
-        if (NumeroPego.equals("1")) {
-            for (Usuario usuario : usuarios) {
-                // Exibir os dados do usuário
-                System.out.println("Nome: " + usuario.getNome());
-                System.out.println("Senha: " + usuario.getPassword());
-                System.out.println("Email: " + usuario.getEmail());
-                System.out.println("--------------------"); // Separador entre usuários
+                    // Mostrar todos os usuários cadastrados
+                    String[] usuariosData = Usuario.cadastroDeUsuarios(usuarios);
+                    int index = 0;
+
+                    for (String usuarioInfo : usuariosData) {
+                        System.out.println("usuario : " + index);
+                        System.out.println(usuarioInfo);
+                        index++;
+                    }
+
+                    frame.dispose(); // Fecha a janela após o cadastro
+                }
+            });
+
+            // Adicionar componentes ao frame
+            frame.add(nomeLabel);
+            frame.add(nomeField);
+            frame.add(emailLabel);
+            frame.add(emailField);
+            frame.add(senhaLabel);
+            frame.add(senhaField);
+            frame.add(cadastrarButton);
+            frame.setVisible(true);
+
+            // Espera o usuário fechar a janela antes de continuar
+            while (frame.isVisible()) {
+                try {
+                    Thread.sleep(100); // Espera um pouco para evitar uso excessivo da CPU
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
             }
-        } else {
-
-        Autenticacao autenticacao = new Autenticacao();
-
-        // Solicitar nome e senha ao usuário para autenticação
-        System.out.print("Digite o nome de usuário para autenticação: ");
-        String nomeFornecido = scanner.nextLine();
-
-        System.out.print("Digite a senha: ");
-        String senhaFornecida = scanner.nextLine();
-
-        // Verificar se o nome e a senha estão corretos para algum usuário no array
-        if (autenticacao.autenticar(usuarios, nomeFornecido, senhaFornecida)) {
-            System.out.println("Autenticação bem-sucedida! Bem-vindo, " + nomeFornecido + "!");
-        } else {
-            System.out.println("Falha na autenticação. Nome ou senha incorretos.");
-        }
         }
 
-    
-
-        // Fechar o scanner
         scanner.close();
     }
 }

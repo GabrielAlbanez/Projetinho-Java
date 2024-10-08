@@ -1,5 +1,7 @@
 package org.example.Usuario;
 
+import java.util.ArrayList;
+
 public class Usuario {
     private String nome;
     private String password;
@@ -12,6 +14,9 @@ public class Usuario {
         this.email = email;
     }
 
+ 
+
+
     // Getters para acessar os atributos
     public String getNome() {
         return nome;
@@ -23,5 +28,18 @@ public class Usuario {
 
     public String getEmail() {
         return email;
+    }
+
+    public static String[] cadastroDeUsuarios(ArrayList<Usuario> usuarios) {
+        //criar uma lista data, 
+        String[] data = new String[usuarios.size()];
+
+        for (int i = 0; i < usuarios.size(); i++) {
+            Usuario usuario = usuarios.get(i);
+            data[i] = "Nome: " + usuario.getNome() + ", Email: " + usuario.getEmail() + ", Senha: "
+                    + usuario.getPassword();
+        }
+
+        return data;
     }
 }
