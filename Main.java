@@ -2,6 +2,9 @@ import java.util.Scanner;
 import org.example.Auth.Autenticacao;
 import org.example.Database.Database;
 import org.example.Usuario.Usuario;
+
+import models.UsuarioDAO;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,7 +15,6 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-
         Connection connection = Database.getConnection();
         if (connection == null) {
             System.out.println("Não foi possível conectar ao banco de dados.");
@@ -21,6 +23,7 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         ArrayList<Usuario> usuarios = new ArrayList<>();
+        UsuarioDAO usuarioDAO = new UsuarioDAO(); // Cria a instância do DAO
 
         // Pergunta quantos usuários o usuário deseja cadastrar
         System.out.print("Quantos usuários você deseja cadastrar? ");
@@ -69,17 +72,6 @@ public class Main {
                     // Cadastro do novo usuário
                     usuarios.add(new Usuario(nome, senha, email));
                     JOptionPane.showMessageDialog(frame, "Usuário cadastrado com sucesso!");
-
-                    // Mostrar todos os usuários cadastrados
-                    String[] usuariosData = Usuario.cadastroDeUsuarios(usuarios);
-                    int index = 0;
-
-                    for (String usuarioInfo : usuariosData) {
-                        System.out.println("usuario : " + index);
-                        System.out.println(usuarioInfo);
-                        index++;
-                    }
-
                     frame.dispose(); // Fecha a janela após o cadastro
                 }
             });
@@ -104,6 +96,16 @@ public class Main {
             }
         }
 
+        // Após o loop de cadastro, salvar os usuários no banco de dados
+        usuarioDAO.salvarUsuarios(usuarios);
+
         scanner.close();
+
+        // Fechar a conexão após o uso
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            System.err.println("Erro ao fechar a conexão: " + e.getMessage());
+        }
     }
 }
