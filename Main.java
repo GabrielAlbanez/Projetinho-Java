@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -22,6 +23,9 @@ public class Main {
         }
 
         Scanner scanner = new Scanner(System.in);
+
+        System.out.println("1 - listar usuarios |  2 - cadastrar usuarios | 3 - remover usuarios");
+
         ArrayList<Usuario> usuarios = new ArrayList<>();
         UsuarioDAO usuarioDAO = new UsuarioDAO(); // Cria a instância do DAO
 
@@ -61,7 +65,10 @@ public class Main {
                     }
 
                     // Verificação de e-mail duplicado
-                    for (Usuario usuario : usuarios) {
+
+                    List<Usuario> UserData = usuarioDAO.getAllUserDataBase();
+
+                    for (Usuario usuario : UserData) {
                         if (usuario.getEmail().equalsIgnoreCase(email)) {
                             JOptionPane.showMessageDialog(frame, "E-mail já cadastrado!", "Erro",
                                     JOptionPane.ERROR_MESSAGE);
@@ -98,6 +105,19 @@ public class Main {
 
         // Após o loop de cadastro, salvar os usuários no banco de dados
         usuarioDAO.salvarUsuarios(usuarios);
+
+        System.out.println("Usuarios Cadastrados No Banco");
+
+        List<Usuario> UserDataa = usuarioDAO.getAllUserDataBase();
+
+        int index = 0;
+
+        for (Usuario usuario : UserDataa) {
+            System.out.println(index);
+            System.out.println("nome : " +  usuario.getNome());
+            System.out.println("email : " +  usuario.getEmail());
+            index++;            
+        }
 
         scanner.close();
 
